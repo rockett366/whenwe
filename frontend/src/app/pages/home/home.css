@@ -1,0 +1,24 @@
+.main{
+    font-size: 50px;
+    display: flex;
+    max-width: 800px;
+    justify-content: space-between;
+    align-items: center;
+    margin: auto;
+    padding-top: 20%;
+}
+.title{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+.rotating-word {
+  display: inline-block;
+  transition: opacity 0.5s ease-in-out;
+  color: #64b3ef;
+}
+.whole{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
