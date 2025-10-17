@@ -2,14 +2,16 @@
   <h2>Login</h2>
 
   <mat-form-field appearance="fill">
-    <mat-label>Username</mat-label>
-    <input matInput placeholder="Enter your username" [(ngModel)]="username">
+    <mat-label>Email</mat-label>
+    <input matInput placeholder="Enter your email" [(ngModel)]="email" />
   </mat-form-field>
 
   <mat-form-field appearance="fill">
     <mat-label>Password</mat-label>
-    <input matInput type="password" placeholder="Enter your password" [(ngModel)]="password">
+    <input matInput type="password" placeholder="Enter your password" [(ngModel)]="password" />
   </mat-form-field>
 
-  <button  class="login-button" matButton="filled">Login</button>
+  <button class="login-button" mat-raised-button color="primary" (click)="onLogin()">Login</button>
+
+  <p *ngIf="errorMessage" style="color: red">{{ errorMessage }}</p>
 </div>
