@@ -5,18 +5,11 @@ import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 
 @Component({
-  selector: 'app-login',
-  standalone: true,
+  selector: 'app-signup',
   imports: [MatInputModule, MatFormFieldModule, FormsModule, MatButtonModule],
-  templateUrl: './login.html',
-  styleUrl: './login.css'
+  templateUrl: './signup.html',
+  styleUrl: './signup.css'
 })
-export class Login {
-  username: string = '';
-  password: string = '';
+export class Signup {
 
-  onLogin() {
-    // Handle login logic here
-    console.log('Logging in with', this.username, this.password);
-  }
 }

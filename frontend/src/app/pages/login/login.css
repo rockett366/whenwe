@@ -4,4 +4,14 @@
   gap: 16px;
   max-width: 300px;
   margin: 100px auto;
+  border: 1px solid #cccccc;
+  box-shadow: 0 2px 2px white;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.login-button{
+  border-radius: 8px;
+  border: 1px solid #1976d2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
