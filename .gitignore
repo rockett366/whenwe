@@ -28,5 +28,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # Py Chache
-/__pychache__
-.pyc
+* .pyc
+__pycache__
+
+venv

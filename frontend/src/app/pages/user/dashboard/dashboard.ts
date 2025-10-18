@@ -2,6 +2,7 @@ import { Component, ViewEncapsulation } from '@angular/core';
 import { EventStyleArgs, KENDO_SCHEDULER, SchedulerEvent } from '@progress/kendo-angular-scheduler';
 import {MatListModule} from '@angular/material/list';
 import {MatButtonModule} from '@angular/material/button';
+import {DatePipe} from '@angular/common';
 
 @Component({
   selector: 'app-dashboard',
@@ -24,4 +25,12 @@ export class Dashboard {
     const eventId = args.event.dataItem.id;
     return eventId % 2 === 0 ? "even-id" : "odd-id";
   };
+
+  get upcomingEvents(): SchedulerEvent[] {
+    const now = new Date();
+    return this.events
+      .filter(e => e.start > now)       // Future events only
+      .sort((a, b) => a.start.getTime() - b.start.getTime()) // Sort by soonest
+      .slice(0, 5);                      // Max 5 events
+  }
 }

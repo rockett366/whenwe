@@ -1,7 +1,23 @@
 
 
 <div class="whole">
-    <p>dashboard works!</p>
+    <div class="upcoming_events">
+    <div class="list_category">
+      <mat-list role="list">
+        <span matListItemTitle><h3>Events</h3></span>
+
+        <mat-list-item *ngFor="let event of upcomingEvents" role="listitem">
+          <div>
+            <strong>{{ event.title }}</strong><br>
+            <small>{{ event.start | date:'MMM d, h:mm a' }}</small>
+          </div>
+        </mat-list-item>
+
+        <!-- Add new event button -->
+        <button mat-button>+</button>
+      </mat-list>
+    </div>
+  </div>
     <div class="calendar">
         <div class="title">
             <h1>Welcome ``username``</h1>
