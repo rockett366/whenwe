@@ -1,0 +1,81 @@
+<div class="signup-form-container">
+  <h2>Rank Your Priorities</h2>
+  <p>Assign each a rank from 1 (most important) to 5 (least important).</p>
+
+  <!-- Friends -->
+  <div class="priority-item">
+    <label for="friends">Friends</label>
+    <mat-form-field appearance="fill" class="priority-select">
+      <mat-select id="friends" [(ngModel)]="friends" placeholder="Select rank">
+        @for (rating of ratings; track rating){
+        <mat-option [value]="rating.value">{{ rating.viewValue }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- Family -->
+  <div class="priority-item">
+    <label for="family">Family</label>
+    <mat-form-field appearance="fill" class="priority-select">
+      <mat-select id="family" [(ngModel)]="family" placeholder="Select rank">
+        @for (rating of ratings; track rating){
+        <mat-option [value]="rating.value">{{ rating.viewValue }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- School -->
+  <div class="priority-item">
+    <label for="school">School</label>
+    <mat-form-field appearance="fill" class="priority-select">
+      <mat-select id="school" [(ngModel)]="school" placeholder="Select rank">
+        @for (rating of ratings; track rating){
+        <mat-option [value]="rating.value">{{ rating.viewValue }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- Work -->
+  <div class="priority-item">
+    <label for="work">Work</label>
+    <mat-form-field appearance="fill" class="priority-select">
+      <mat-select id="work" [(ngModel)]="work" placeholder="Select rank">
+        @for (rating of ratings; track rating){
+        <mat-option [value]="rating.value">{{ rating.viewValue }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- Self -->
+  <div class="priority-item">
+    <label for="self">Self</label>
+    <mat-form-field appearance="fill" class="priority-select">
+      <mat-select id="self" [(ngModel)]="self" placeholder="Select rank">
+        @for (rating of ratings; track rating){
+        <mat-option [value]="rating.value">{{ rating.viewValue }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- Preferences Text Area -->
+  <h2>Tell Us Your Preferences</h2>
+  <p>Tell us more about your scheduling or lifestyle preferences</p>
+  <div class="preferences-section">
+    <mat-form-field appearance="fill" class="preferences-field">
+      <mat-label>Preferences</mat-label>
+      <textarea
+        matInput
+        placeholder="Separate each preference with a comma..."
+        rows="4"
+        [(ngModel)]="preferences">
+      </textarea>
+    </mat-form-field>
+  </div>
+
+  <button mat-flat-button color="primary" [routerLink]="['/user_dashboard']">Continue</button>
+</div>
