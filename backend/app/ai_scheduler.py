@@ -1,3 +1,12 @@
-def suggest_meeting_time(schedules: list[dict]):
-    # Example AI logic placeholder
-    return {"suggested_time": "2025-10-18T14:00:00"}
+from openai import OpenAI
+
+client = OpenAI() 
+
+
+def suggest_meeting_time():
+    response = client.responses.create(
+        model="gpt-5-mini",
+        input="Write hi"
+    )
+    return(response.output_text)
+

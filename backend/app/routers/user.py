@@ -4,6 +4,7 @@ from ..database import get_db
 from .. import models, schemas
 from .auth import get_current_user
 from ..utils import hash_password, verify_password
+from ..ai_scheduler import suggest_meeting_time
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -45,6 +46,12 @@ def verify_my_password(
         raise HTTPException(status_code=400, detail="Current password is incorrect")
     return {"ok": True}
 
+# PUT /users/me/request
+@router.put("/me/request")
+def change_my_password():
+    return suggest_meeting_time()
+
+
 # PUT /users/me/password
 @router.put("/me/password")
 def change_my_password(
@@ -66,3 +73,5 @@ def change_my_password(
     current.password_hash = hash_password(payload.new_password)
     db.commit()
     return {"message": "Password updated"}
+
+
