@@ -6,13 +6,6 @@
       <mat-list role="list">
         <span matListItemTitle><h3>Events</h3></span>
 
-        <mat-list-item *ngFor="let event of upcomingEvents" role="listitem">
-          <div>
-            <strong>{{ event.title }}</strong><br>
-            <small>{{ event.start | date:'MMM d, h:mm a' }}</small>
-          </div>
-        </mat-list-item>
-
         <!-- Add new event button -->
         <button mat-button>+</button>
       </mat-list>
