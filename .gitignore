@@ -27,8 +27,25 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Py Chache
-* .pyc
-__pycache__
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
 
-venv
+# SQLite databases
+*.db
+
+# Virtual environment
+venv/
+ENV/
+env/
+.venv/
+
+# IDE/project settings
+.vscode/
+.idea/
+*.swp
+
+# MacOS / Windows noise
+.DS_Store
+Thumbs.db
