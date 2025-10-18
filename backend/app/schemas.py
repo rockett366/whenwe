@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr
+from typing import Optional
 
 # -------------------
 # USER SCHEMAS
@@ -72,3 +73,16 @@ class ReviewCreate(BaseModel):
 
 class ReviewOut(ReviewCreate):
     id: int
+
+class UserPrefUpdate(BaseModel):
+    friends_rating: Optional[int] = None
+    family_rating: Optional[int] = None
+    school_rating: Optional[int] = None
+    work_rating: Optional[int] = None
+    self_rating: Optional[int] = None
+
+class UserTokenUpdate(BaseModel):
+    google_token: Optional[str] = None
+
+class UserPrefAppend(BaseModel):
+    preference: Optional[str] = None

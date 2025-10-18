@@ -4,13 +4,14 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router'; //
 
 declare const google: any;
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, MatInputModule, MatFormFieldModule, FormsModule, MatButtonModule], // ✅ add CommonModule here
+  imports: [RouterLink, CommonModule, MatInputModule, MatFormFieldModule, FormsModule, MatButtonModule], // ✅ add CommonModule here
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
