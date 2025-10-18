@@ -4,7 +4,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
-import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 
@@ -16,14 +15,7 @@ interface Rating {
 @Component({
   selector: 'app-signup-form',
   standalone: true,
-  imports: [
-    RouterLink,
-    MatInputModule,
-    MatSelectModule,
-    MatFormFieldModule,
-    MatButtonModule,
-    FormsModule,
-  ],
+  imports: [MatInputModule, MatSelectModule, MatFormFieldModule, MatButtonModule, FormsModule],
   templateUrl: './signup-form.html',
   styleUrl: './signup-form.css',
 })
