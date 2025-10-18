@@ -4,6 +4,7 @@ from pydantic import BaseModel
 client = OpenAI() 
 class CalendarEvent(BaseModel):
     name: str
+    day: str
     start_time: str
     end_time: str
     participants: list[str]
@@ -13,10 +14,10 @@ def suggest_meeting_time():
     response = client.responses.parse(
         model="gpt-5-mini",
         input=[
-            {"role": "system", "content": "Extract the event information."},
+            {"role": "system", "content": "Extract the best time to meet, look for event information. write date in 2025-10-20T09:00:00 "},
             {
                 "role": "user",
-                "content": "Alice and Bob are going to a science fair on friday at 5pm, events an hour"
+                "content": "Alice and Bob want to going to a science fair for 6 hour, alice is busy everyday after 4pm"
             },
         ],
         text_format = CalendarEvent,
