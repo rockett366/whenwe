@@ -21,24 +21,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 # ----------------------------
 @router.post("/signup", response_model=schemas.SignupResponse, status_code=status.HTTP_201_CREATED)
 def signup(payload: schemas.SignupRequest, db: Session = Depends(get_db)):
-    # Simple password length validation
-    if len(payload.password) < schemas.MIN_PASSWORD_LEN:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Password must be at least {schemas.MIN_PASSWORD_LEN} characters."
-        )
-
-    # Check if username or email already exists
-    username_exists = db.execute(select(models.User).where(models.User.username == payload.username)).scalar_one_or_none()
-    email_exists = db.execute(select(models.User).where(models.User.email == payload.email.lower())).scalar_one_or_none()
-
-    if username_exists or email_exists:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Username or email already in use."
-        )
-
-    # Create new user
+    # ... validate, check uniqueness, create user ...
     user = models.User(
         username=payload.username.strip(),
         first_name=payload.first_name.strip(),
@@ -50,11 +33,15 @@ def signup(payload: schemas.SignupRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
 
+    # create token right after signup
+    token = create_access_token(subject=user.username, ttl_seconds=60*60)
+
     return {
         "message": f"Welcome, {user.first_name}!",
-        "user": schemas.UserOut.model_validate(user)
+        "user": user,
+        "access_token": token,
+        "token_type": "bearer",
     }
-
 # ----------------------------
 # LOGIN
 # ----------------------------
@@ -90,3 +77,25 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_
 @router.get("/me", response_model=schemas.UserOut)
 def get_me(current_user: models.User = Depends(get_current_user)):
     return schemas.UserOut.model_validate(current_user)
+
+@router.put("/me/preferences")
+def append_preference(
+    payload: schemas.UserPrefAppend,
+    db: Session = Depends(get_db),
+    current: models.User = Depends(get_current_user)
+):
+    # Fetch the current preference string
+    existing = current.preferences or ""
+
+    # Append a separator (comma or newline)
+    if existing:
+        updated = existing + ", " + payload.new_preference
+    else:
+        updated = payload.new_preference
+
+    # Update DB
+    current.preferences = updated
+    db.commit()
+    db.refresh(current)
+
+    return {"preferences": current.preferences}

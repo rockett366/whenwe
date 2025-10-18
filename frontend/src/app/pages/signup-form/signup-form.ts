@@ -4,9 +4,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
-import { RouterLink } from '@angular/router'; //
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 
-interface Rating{
+interface Rating {
   value: number;
   viewValue: number;
 }
@@ -14,24 +15,57 @@ interface Rating{
 @Component({
   selector: 'app-signup-form',
   standalone: true,
-  imports: [RouterLink, MatInputModule, MatSelectModule, MatFormFieldModule, MatButtonModule, FormsModule],
+  imports: [MatInputModule, MatSelectModule, MatFormFieldModule, MatButtonModule, FormsModule],
   templateUrl: './signup-form.html',
-  styleUrl: './signup-form.css'
+  styleUrl: './signup-form.css',
 })
 export class SignupForm {
+  constructor(private http: HttpClient, private router: Router) {}
+
   friends: number = 0;
   family: number = 0;
   school: number = 0;
   work: number = 0;
   self: number = 0;
-  preferences: string = "";
+  preferences: string = '';
 
   ratings: Rating[] = [
-    {value: 1, viewValue: 1},
-    {value: 2, viewValue: 2},
-    {value: 3, viewValue: 3},
-    {value: 4, viewValue: 4},
-    {value: 5, viewValue: 5}
-  ]
+    { value: 1, viewValue: 1 },
+    { value: 2, viewValue: 2 },
+    { value: 3, viewValue: 3 },
+    { value: 4, viewValue: 4 },
+    { value: 5, viewValue: 5 },
+  ];
 
+  submitRatings() {
+    const token = localStorage.getItem('access_token');
+
+    if (!token) {
+      console.error('⚠️ No token found in localStorage');
+      alert('You must be logged in to save your ratings.');
+      return;
+    }
+
+    const payload = {
+      friends_rating: this.friends,
+      family_rating: this.family,
+      school_rating: this.school,
+      work_rating: this.work,
+      self_rating: this.self,
+      preferences: this.preferences,
+    };
+
+    const headers = { Authorization: `Bearer ${token}` };
+
+    this.http.put('http://localhost:8000/users/me/ratings', payload, { headers }).subscribe({
+      next: (res) => {
+        console.log('✅ Ratings saved:', res);
+        this.router.navigate(['/user_dashboard']);
+      },
+      error: (err) => {
+        console.error('❌ Error saving ratings:', err);
+        alert('Failed to save ratings. Please try again.');
+      },
+    });
+  }
 }

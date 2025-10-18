@@ -1,7 +1,8 @@
 import { Component, ViewEncapsulation, OnInit } from '@angular/core';
 import { EventStyleArgs, KENDO_SCHEDULER, SchedulerEvent } from '@progress/kendo-angular-scheduler';
-import { MatListModule } from '@angular/material/list';
-import { MatButtonModule } from '@angular/material/button';
+import {MatListModule} from '@angular/material/list';
+import {MatButtonModule} from '@angular/material/button';
+import {DatePipe} from '@angular/common';
 import { CalendarService, GoogleEvent } from './calendar.service';
 
 @Component({
@@ -86,4 +87,12 @@ export class Dashboard implements OnInit {
     const eventId = (args.event.dataItem as any).id;
     return Number.isFinite(+eventId) && (+eventId % 2 === 0) ? "even-id" : "odd-id";
   };
+
+  get upcomingEvents(): SchedulerEvent[] {
+    const now = new Date();
+    return this.events
+      .filter(e => e.start > now)       // Future events only
+      .sort((a, b) => a.start.getTime() - b.start.getTime()) // Sort by soonest
+      .slice(0, 5);                      // Max 5 events
+  }
 }
