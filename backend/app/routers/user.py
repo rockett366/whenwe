@@ -21,16 +21,9 @@ def update_me(
     db: Session = Depends(get_db),
     current: models.User = Depends(get_current_user),
 ):
-    # enforce unique phone (if present on another account)
-    conflict = db.query(models.User).filter(
-        (models.User.phone == payload.phone) & (models.User.id != current.id)
-    ).first()
-    if conflict:
-        raise HTTPException(status_code=409, detail="Phone already in use")
 
     current.first_name = payload.first_name
     current.last_name = payload.last_name
-    current.phone = payload.phone
     db.commit()
     db.refresh(current)
     return current
@@ -66,3 +59,18 @@ def change_my_password(
     current.password_hash = hash_password(payload.new_password)
     db.commit()
     return {"message": "Password updated"}
+
+# PUT /users/me/ratings
+@router.put("/me/ratings")
+def update_ratings(
+    payload: schemas.UserPrefUpdate,
+    db: Session = Depends(get_db),
+    current: models.User = Depends(get_current_user)
+):
+    # Update each rating if it was provided
+    for field, value in payload.model_dump(exclude_unset=True).items():
+        setattr(current, field, value)
+
+    db.commit()
+    db.refresh(current)
+    return {"message": "Ratings updated", "user": current}
