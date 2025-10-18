@@ -1,4 +1,4 @@
-import { Component,AfterViewInit } from '@angular/core';
+import { Component } from '@angular/core';
 import {MatInput, MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {FormsModule} from '@angular/forms';
@@ -12,7 +12,7 @@ declare const google: any;
   templateUrl: './signup.html',
   styleUrl: './signup.css'
 })
-export class Signup implements AfterViewInit {
+export class Signup{
   username: string = '';
   password: string = ''
   email: string = '';
@@ -20,21 +20,13 @@ export class Signup implements AfterViewInit {
   firstName: string = '';
   lastName: string = '';
 
-  ngAfterViewInit(): void {
-    google.accounts.id.initialize({
-      client_id: '865258892929-bc8naucktsurjnokm21clsgnirb5t2ij.apps.googleusercontent.com',
-      callback: this.handleCredentialResponse.bind(this)
-    });
-    google.accounts.id.renderButton(
-      document.getElementById('google-signin-button'),
-      { theme: 'outline', size: 'large', 'width': '100%' }
-    );
+  redirectToGoogleAuth() {
+    const clientId = '865258892929-bc8naucktsurjnokm21clsgnirb5t2ij.apps.googleusercontent.com';
+    const redirectUri = encodeURIComponent('http://localhost:4200/google-callback');
+    const scope = encodeURIComponent('https://www.googleapis.com/auth/calendar.readonly email profile');
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}&prompt=consent&include_granted_scopes=true`;
+
+    window.location.href = authUrl;
   }
-
-  handleCredentialResponse(response: any) {
-    console.log('Google JWT Token: ' + response.credential);
-    // Handle the response, e.g., send it to your backend for verification
-  }
-
-
 }
+
