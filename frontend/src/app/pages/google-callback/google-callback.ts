@@ -21,6 +21,6 @@ export class GoogleCallbackComponent implements OnInit {
     // TODO: Send tokens to your backend to create account / store token
 
     // Redirect user to home page or dashboard
-    this.router.navigate(['/']);
+    this.router.navigate(['']);
   }
 }
