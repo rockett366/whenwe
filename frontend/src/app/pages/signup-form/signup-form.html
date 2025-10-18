@@ -72,10 +72,11 @@
         matInput
         placeholder="Separate each preference with a comma..."
         rows="4"
-        [(ngModel)]="preferences">
+        [(ngModel)]="preferences"
+      >
       </textarea>
     </mat-form-field>
   </div>
 
-  <button mat-flat-button color="primary" [routerLink]="['/user_dashboard']">Continue</button>
+  <button mat-flat-button color="primary" (click)="submitRatings()">Continue</button>
 </div>
