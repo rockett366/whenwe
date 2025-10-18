@@ -9,20 +9,20 @@ export class GoogleCallbackComponent implements OnInit {
   constructor(private router: Router) {}
 
   ngOnInit() {
-    // Get the hash fragment from the URL
-    const hash = window.location.hash.substring(1);
-    const params = new URLSearchParams(hash);
-    const accessToken = params.get('access_token');
-    const idToken = params.get('id_token');
+  const hash = window.location.hash.substring(1);
+  const params = new URLSearchParams(hash);
+  const accessToken = params.get('access_token');
+  const expiresIn = params.get('expires_in'); // seconds
 
-    console.log('Google ID Token:', idToken);
-    console.log('Access Token (Calendar):', accessToken);
-
-    if (accessToken){
-      sessionStorage.setItem('google_access_token', accessToken);
+  if (accessToken){
+    sessionStorage.setItem('google_access_token', accessToken);
+    if (expiresIn) {
+      const expiresAt = Date.now() + Number(expiresIn) * 1000;
+      sessionStorage.setItem('google_access_token_expires_at', String(expiresAt));
     }
-
-    // Redirect user to home page or dashboard
-    this.router.navigate(['/user_dashboard']);
   }
+
+  this.router.navigate(['/user_dashboard']);
+}
+
 }
