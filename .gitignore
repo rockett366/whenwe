@@ -28,7 +28,6 @@ yarn-debug.log*
 yarn-error.log*
 
 # Py Backend
-/backend/
-/backend/__pychache__
+backend/__pychache__
 .py[cod]
 .pyo
