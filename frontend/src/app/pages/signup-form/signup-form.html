@@ -1,0 +1,56 @@
+<div class="priorities-container">
+  <h2>Rank Your Priorities</h2>
+  <p>Assign each a rank from 1 (most important) to 5 (least important).</p>
+
+  <!-- Friends -->
+  <div class="priority-item">
+    <label for="friends">Friends</label>
+    <mat-form-field appearance="fill" class="priority-select">
+      <mat-select id="friends" [(ngModel)]="friends" placeholder="Select rank">
+        <mat-option *ngFor="let n of numbers" [value]="n">{{ n }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- Family -->
+  <div class="priority-item">
+    <label for="family">Family</label>
+    <mat-form-field appearance="fill" class="priority-select">
+      <mat-select id="family" [(ngModel)]="family" placeholder="Select rank">
+        <mat-option *ngFor="let n of numbers" [value]="n">{{ n }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- School -->
+  <div class="priority-item">
+    <label for="school">School</label>
+    <mat-form-field appearance="fill" class="priority-select">
+      <mat-select id="school" [(ngModel)]="school" placeholder="Select rank">
+        <mat-option *ngFor="let n of numbers" [value]="n">{{ n }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- Work -->
+  <div class="priority-item">
+    <label for="work">Work</label>
+    <mat-form-field appearance="fill" class="priority-select">
+      <mat-select id="work" [(ngModel)]="work" placeholder="Select rank">
+        <mat-option *ngFor="let n of numbers" [value]="n">{{ n }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- Self -->
+  <div class="priority-item">
+    <label for="self">Self</label>
+    <mat-form-field appearance="fill" class="priority-select">
+      <mat-select id="self" [(ngModel)]="self" placeholder="Select rank">
+        <mat-option *ngFor="let n of numbers" [value]="n">{{ n }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <button mat-flat-button color="primary" (click)="submitPriorities()">Continue</button>
+</div>
