@@ -18,9 +18,11 @@ export class GoogleCallbackComponent implements OnInit {
     console.log('Google ID Token:', idToken);
     console.log('Access Token (Calendar):', accessToken);
 
-    // TODO: Send tokens to your backend to create account / store token
+    if (accessToken){
+      sessionStorage.setItem('google_access_token', accessToken);
+    }
 
     // Redirect user to home page or dashboard
-    this.router.navigate(['']);
+    this.router.navigate(['/user_dashboard']);
   }
 }
