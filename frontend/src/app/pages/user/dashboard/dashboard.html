@@ -1,10 +1,31 @@
-<p>dashboard works!</p>
-<kendo-scheduler
-      [selectedDate]="selectedDate"
-      [kendoSchedulerBinding]="events"
-      [eventClass]="getEventClass"
-      style="height: 600px"
-    >
-      <kendo-scheduler-day-view> </kendo-scheduler-day-view>
-      <kendo-scheduler-week-view> </kendo-scheduler-week-view>
-    </kendo-scheduler>
+
+
+<div class="whole">
+    <p>dashboard works!</p>
+    <div class="calendar">
+        <div class="title">
+            <h1>Welcome ``username``</h1>
+        </div>
+        <kendo-scheduler
+            [selectedDate]="selectedDate"
+            [kendoSchedulerBinding]="events"
+            [eventClass]="getEventClass"
+            style="height: 600px"
+        >
+            <kendo-scheduler-day-view> </kendo-scheduler-day-view>
+            <kendo-scheduler-week-view> </kendo-scheduler-week-view>
+        </kendo-scheduler>
+    </div>
+    <div class="Social">
+        <div class="list_category">
+            <mat-list role="list">
+                    <span matListItemTitle> <h3>FRIENDS</h3></span>
+                
+                <mat-list-item role="listitem">``friend``</mat-list-item>
+                <mat-list-item role="listitem">``friend``</mat-list-item>
+                <mat-list-item role="listitem">``friend``</mat-list-item>
+                <button matButton="filled">+</button>
+            </mat-list>
+        </div>  
+    </div>
+</div>

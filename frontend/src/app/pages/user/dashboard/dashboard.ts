@@ -1,10 +1,12 @@
 import { Component, ViewEncapsulation } from '@angular/core';
 import { EventStyleArgs, KENDO_SCHEDULER, SchedulerEvent } from '@progress/kendo-angular-scheduler';
+import {MatListModule} from '@angular/material/list';
+import {MatButtonModule} from '@angular/material/button';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [KENDO_SCHEDULER],
+  imports: [KENDO_SCHEDULER, MatListModule, MatButtonModule],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css'], // <-- fixed
   encapsulation: ViewEncapsulation.None,

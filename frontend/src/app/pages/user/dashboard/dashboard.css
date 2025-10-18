@@ -1,8 +1,52 @@
+h3{
+    text-align: center;
+}
+
 .even-id.k-event {
-    color: #ccf381;
-    background-color: #4831d4;
+    color: #000000;
+    background-color: #6e9aec;
 }
 .odd-id.k-event {
-    color: #e2d1f9;
-    background-color: #317773;
+    color: #000000;
+    background-color: #f6e995;
+}
+.calendar{
+    width: 1000px;
+    border-style: solid;
+    border-color: rgba(61, 61, 61, 0.549);
+    border-width: 2px;
+    border-radius: 5px;
+}
+.whole{
+    display: flex;
+    align-items: center;
+    height: 100vh;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    
+}
+.title{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 25px;
+}
+/* social */
+.list_category{
+    border-style: solid;
+    border-color: rgba(61, 61, 61, 0.549);
+    border-width: 2px;
+    border-radius: 5px;
+    width: 150px;
+    height:600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.list_category mat-list-item:hover{
+    background-color: #bed0f4;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
