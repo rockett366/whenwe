@@ -1,4 +1,4 @@
-.priorities-container {
+.signup-form-container {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -29,3 +29,12 @@ button {
   align-self: center;
   width: 150px;
 }
+
+.preferences-section {
+  margin-top: 20px;
+}
+
+.preferences-field {
+  width: 100%;
+}
+
