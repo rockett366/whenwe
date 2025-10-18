@@ -5,6 +5,7 @@ import { Home } from './pages/home/home';
 import { Dashboard } from './pages/user/dashboard/dashboard';
 import { GoogleCallbackComponent } from './pages/google-callback/google-callback';
 import { SignupForm } from './pages/signup-form/signup-form';
+import { Connect } from './pages/connect/connect';
 
 
 export const routes: Routes = [
@@ -14,5 +15,6 @@ export const routes: Routes = [
   { path: 'home', component: Home },
   { path: 'user_dashboard', component: Dashboard },
   { path: 'signup-form', component: SignupForm },
+  { path: 'connect', component: Connect},
   { path: '', redirectTo: '/home', pathMatch: 'full' },
 ];

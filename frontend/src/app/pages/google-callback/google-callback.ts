@@ -22,7 +22,7 @@ export class GoogleCallbackComponent implements OnInit {
     }
   }
 
-  this.router.navigate(['/user_dashboard']);
+  this.router.navigate(['/signup-form']);
 }
 
 }
