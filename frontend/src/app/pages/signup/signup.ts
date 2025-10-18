@@ -47,7 +47,7 @@ export class Signup {
       next: (res) => {
         console.log('Signed Up:', res);
         localStorage.setItem('access_token', res.access_token);
-        this.router.navigate(['/signup-form']);
+        this.router.navigate(['/connect']);
       },
       error: (err) => console.error('Signup error:', err),
     });
