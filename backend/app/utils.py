@@ -10,8 +10,10 @@ def hash_password(password: str) -> str:
     return pwd_ctx.hash(trimmed)
 
 def verify_password(password: str, hashed: str) -> bool:
-    trimmed = password.encode("utf-8")[:72].decode("utf-8", errors="ignore")
+    # Truncate safely to 72 characters
+    trimmed = password[:72]
     return pwd_ctx.verify(trimmed, hashed)
+
 
 
 # --- JWT settings ---
