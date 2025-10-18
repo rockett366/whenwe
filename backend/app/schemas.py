@@ -50,6 +50,8 @@ class SignupRequest(BaseModel):
 class SignupResponse(BaseModel):
     message: str
     user: UserOut
+    access_token: str
+    token_type: str = "bearer"
 
 
 class LoginRequest(BaseModel):
@@ -86,3 +88,4 @@ class UserTokenUpdate(BaseModel):
 
 class UserPrefAppend(BaseModel):
     preference: Optional[str] = None
+

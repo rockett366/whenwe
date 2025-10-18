@@ -38,6 +38,14 @@ export class SignupForm {
   ];
 
   submitRatings() {
+    const token = localStorage.getItem('access_token');
+
+    if (!token) {
+      console.error('⚠️ No token found in localStorage');
+      alert('You must be logged in to save your ratings.');
+      return;
+    }
+
     const payload = {
       friends_rating: this.friends,
       family_rating: this.family,
@@ -47,14 +55,15 @@ export class SignupForm {
       preferences: this.preferences,
     };
 
-    this.http.put('http://localhost:8000/users/me/ratings', payload).subscribe({
+    const headers = { Authorization: `Bearer ${token}` };
+
+    this.http.put('http://localhost:8000/users/me/ratings', payload, { headers }).subscribe({
       next: (res) => {
-        console.log('Ratings saved:', res);
-        // navigate after successful update
+        console.log('✅ Ratings saved:', res);
         this.router.navigate(['/user_dashboard']);
       },
       error: (err) => {
-        console.error('Error saving ratings:', err);
+        console.error('❌ Error saving ratings:', err);
         alert('Failed to save ratings. Please try again.');
       },
     });
