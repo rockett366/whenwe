@@ -1,4 +1,4 @@
-from asyncio import events
+from typing import Any, Dict, List
 from openai import OpenAI
 from pydantic import BaseModel
 
@@ -11,7 +11,7 @@ class CalendarEvent(BaseModel):
     participants: list[str]
 
 # def suggest_meeting_time(rank1, pref1, new_event1, calender_event1, rank2, pref2, new_event2, calender_event2):
-def suggest_meeting_time(user_name, friend_name, preferences, _events_to_compact_json, family_rank_me, family_rank_friend, friend_rank_me, friend_rank_friend, school_rank_me, school_rank_friend, work_rank_me, work_rank_friend, self_rank_me, self_rank_friend, time = "1", desired_title = "WhenWe Connect", earliest_start: str = None, latest_end: str = None):
+def suggest_meeting_time(user_name, friend_name, preferences, eventme, eventFriend, family_rank_me, family_rank_friend, friend_rank_me, friend_rank_friend, school_rank_me, school_rank_friend, work_rank_me, work_rank_friend, self_rank_me, self_rank_friend, time = "1", desired_title = "WhenWe Connect", earliest_start: str = None, latest_end: str = None):
     system_msg = (
         "You are a scheduling planner. Find ONE best meeting time that satisfies both people’s "
         "constraints and avoids busy intervals from Google calendar events.\n"
@@ -54,8 +54,8 @@ def suggest_meeting_time(user_name, friend_name, preferences, _events_to_compact
             "latest_end": latest_end          # may be None
         },
         "calendar_data": {
-            "user_events": _events_to_compact_json([e for e in events if True]),   # all passed events are considered the user's by default; customize if you also pass friend events separately
-            "friend_events": []  # if you have the friend's Google events, include them here in same shape
+            "user_events": eventme,   # all passed events are considered the user's by default; customize if you also pass friend events separately
+            "friend_events": eventFriend,
         }
     }
     input_messages = [

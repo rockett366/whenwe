@@ -1,4 +1,5 @@
 import datetime
+import json
 
 import requests
 from fastapi import APIRouter, Depends, HTTPException
@@ -166,12 +167,14 @@ def change_my_password(
     friend_rows = fetch_google_events(friend_token)
 
     join = my_rows + friend_rows
+    combined_json = json.dumps(join)
 
     result = suggest_meeting_time(
-            user_name=getattr(me, "display_name", None) or me.name,
-            friend_name=getattr(friend, "display_name", None) or friend.name,
+            user_name=me,
+            friend_name=friend,
             preferences=combined_preferences,
-            _events_to_compact_json=join,
+            eventme = json.dumps(my_rows),
+            eventFriend = json.dumps(friend_rows),
             family_rank_me=family_rank_me,
             family_rank_friend=family_rank_friend,
             friend_rank_me=friend_rank_me,
@@ -182,7 +185,7 @@ def change_my_password(
             work_rank_friend=work_rank_friend,
             self_rank_me=self_rank_me,
             self_rank_friend=self_rank_friend,
-            time=str(payload.duration_minutes) if hasattr(payload, "duration_minutes") else "60",
+            time=payload.duration,
             desired_title=getattr(payload, "desired_title", "WhenWe Connect"),
             earliest_start=earliest,
             latest_end=latest,
