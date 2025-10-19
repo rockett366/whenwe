@@ -159,8 +159,8 @@ def change_my_password(
     except ValueError:
         raise HTTPException(status_code=422, detail="Rank fields must be integers")
     
-    earliest = payload.earliest_start or datetime.utcnow()
-    latest = payload.latest_end or (earliest + datetime.timedelta(days=14))
+    earliest = payload.earliest_start or None
+    latest = payload.latest_end or None
     combined_preferences = (preferences_me or "") + "; " + (preferences_friend or "")
 
     my_rows = fetch_google_events(me_token)
