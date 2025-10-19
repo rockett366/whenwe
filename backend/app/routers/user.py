@@ -190,7 +190,7 @@ def change_my_password(
             earliest_start=earliest,
             latest_end=latest,
         )
-    return suggest_meeting_time()
+    return result
 
 
 # PUT /users/me/password

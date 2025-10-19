@@ -1,3 +1,4 @@
+import json
 from typing import Any, Dict, List
 from openai import OpenAI
 from pydantic import BaseModel
@@ -61,7 +62,7 @@ def suggest_meeting_time(user_name, friend_name, preferences, eventme, eventFrie
     input_messages = [
         {"role": "system", "content": system_msg},
         {"role": "user", "content": user_msg},
-        {"role": "user", "content": user_payload},
+        {"role": "user", "content": json.dumps(user_payload)},
     ]
     response = client.responses.parse(
         model="gpt-5-mini",
