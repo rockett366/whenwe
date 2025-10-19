@@ -7,7 +7,7 @@ from typing import Optional
 # USER SCHEMAS
 # -------------------
 
-MIN_PASSWORD_LEN = 8  # or 6, but keep it consistent
+MIN_PASSWORD_LEN = 8
 
 class UserBase(BaseModel):
     first_name: str
@@ -20,8 +20,8 @@ class UserBase(BaseModel):
 class UserOut(UserBase):
     id: int
 
-    class Config:
-        from_attributes = True  # modern replacement for orm_mode=True
+class Config:
+    from_attributes = True
 
 
 class UserUpdate(UserBase):
