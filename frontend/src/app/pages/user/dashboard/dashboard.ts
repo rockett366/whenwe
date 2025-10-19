@@ -276,6 +276,18 @@ export class Dashboard implements OnInit {
       next: (res: any) => {
         this.message = `🎉 Requested a hangout with ${friend}.`;
         this.error = '';
+
+        if (res && res.name && res.start_time && res.end_time) {
+          const newEvent: SchedulerEvent = {
+            id: Date.now(), // unique id
+            title: res.name,
+            start: new Date(res.start_time),
+            end: new Date(res.end_time),
+            description: `With: ${(res.participants || []).join(', ')}`,
+          };
+
+          this.events = [...this.events, newEvent]; // refresh reference
+        }
       },
       error: (err) => {
         console.error('Request error:', err);
