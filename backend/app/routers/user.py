@@ -81,3 +81,96 @@ def update_ratings(
     db.commit()
     db.refresh(current)
     return {"message": "Ratings updated", "user": current}
+
+#------- Friend --------#
+# Add friend
+@router.post("/me/add_friend/{friend_username}")
+def add_friend(
+    friend_username: str,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    # Check that the friend exists
+    friend = db.query(models.User).filter(models.User.username == friend_username).first()
+    if not friend:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Check if already added
+    exists = db.query(models.Friendship).filter_by(
+        user_id=current_user.id, friend_username=friend_username
+    ).first()
+    if exists:
+        raise HTTPException(status_code=400, detail="Already friends")
+
+    # Add friendship
+    new_friend = models.Friendship(user_id=current_user.id, friend_username=friend_username)
+    db.add(new_friend)
+    db.commit()
+    db.refresh(new_friend)
+
+    return {"message": f"{friend_username} added as a friend!"}
+
+# Fetch Friends
+@router.get("/me/friends")
+def get_friends(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    friends = db.query(models.Friendship).filter(models.Friendship.user_id == current_user.id).all()
+    return [f.friend_username for f in friends]
+
+#Delete Friend
+@router.delete("/me/friends/{friend_username}")
+def remove_friend(
+    friend_username: str,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    friendship = db.query(models.Friendship).filter_by(
+        user_id=current_user.id, friend_username=friend_username
+    ).first()
+    if not friendship:
+        raise HTTPException(status_code=404, detail="Friend not found")
+    db.delete(friendship)
+    db.commit()
+    return {"message": f"{friend_username} removed."}
+
+#------ Google ------#
+#Store Token
+@router.post("/me/google-token")
+def save_google_token(
+    token_data: dict,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    token = token_data.get("access_token")
+    if not token:
+        raise HTTPException(status_code=400, detail="Missing access_token")
+
+    current_user.google_token = token
+    db.commit()
+    return {"message": "✅ Google token saved!"}
+
+
+# Fetch live events from Google Calendar
+@router.get("/me/google-events")
+def get_google_events(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    if not current_user.google_token:
+        raise HTTPException(status_code=400, detail="Google account not connected")
+
+    headers = {"Authorization": f"Bearer {current_user.google_token}"}
+    params = {"singleEvents": True, "orderBy": "startTime", "maxResults": 20}
+
+    response = requests.get(
+        "https://www.googleapis.com/calendar/v3/calendars/primary/events",
+        headers=headers,
+        params=params,
+    )
+
+    if response.status_code != 200:
+        raise HTTPException(status_code=response.status_code, detail="Failed to fetch events from Google")
+
+    return response.json().get("items", [])

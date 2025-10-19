@@ -1,52 +1,244 @@
-h3{
-    text-align: center;
+/* Page base (optional) */
+:host,
+:root,
+body {
+  box-sizing: border-box;
+}
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
 }
 
+/* Header */
+.dashboard-header {
+  position: relative;
+  display: flex;
+  justify-content: center; /* centers the text */
+  align-items: center;
+  background: #fff;
+  padding: 12px 24px;
+  margin: 10px auto 20px;
+  max-width: 95%;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+.dashboard-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #222;
+  text-align: center;
+}
+.dashboard-header button {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* Three-column row */
+.content-row {
+  display: grid;
+  grid-template-columns: 260px minmax(600px, 1fr) 280px; /* left | center | right */
+  gap: 24px;
+  align-items: start;
+  padding: 0 16px 24px;
+}
+
+/* Calendar card */
+.calendar {
+  border: 2px solid rgba(61, 61, 61, 0.55);
+  border-radius: 10px;
+  background: #fff;
+  padding: 8px;
+  min-width: 0; /* lets scheduler shrink properly */
+}
+
+/* Shared card style for side panels */
+.list_category {
+  border: 2px solid rgba(61, 61, 61, 0.55);
+  border-radius: 10px;
+  height: 600px;
+  background-color: #fafafa;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+}
+.fill {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden; /* keep content tidy */
+}
+
+/* Headings */
+h3,
+.list_category h3 {
+  margin: 6px 0 4px;
+  text-align: center;
+  font-weight: 600;
+  color: #222;
+}
+
+/* Friend list */
+.friend-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-inline: 6px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+.friend-item:hover {
+  background-color: #e3ebff;
+}
+.friend-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Input + button */
+.friend-input {
+  width: 100%;
+  margin-top: 8px;
+}
+button[mat-flat-button] {
+  width: 100%;
+}
+
+/* Messages */
+.success,
+.error {
+  text-align: center;
+  margin-top: 8px;
+}
+.success {
+  color: green;
+}
+.error {
+  color: red;
+}
+
+/* Kendo event colors (as you had) */
 .even-id.k-event {
-    color: #000000;
-    background-color: #6e9aec;
+  color: #000;
+  background-color: #6e9aec;
 }
 .odd-id.k-event {
-    color: #000000;
-    background-color: #f6e995;
+  color: #000;
+  background-color: #f6e995;
 }
-.calendar{
-    width: 1000px;
-    border-style: solid;
-    border-color: rgba(61, 61, 61, 0.549);
-    border-width: 2px;
-    border-radius: 5px;
+
+/* Responsive tweak: stack sidebars below calendar on narrow screens */
+@media (max-width: 1100px) {
+  .content-row {
+    grid-template-columns: 1fr; /* single column */
+  }
+  .list_category {
+    height: auto;
+  }
 }
-.whole{
-    display: flex;
-    align-items: center;
-    height: 100vh;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    
+
+/* ==== EVENT LIST FIXES ==== */
+
+/* Make the whole scroll area flexible so rows grow naturally */
+.events-scroll {
+  overflow-y: auto;
+  max-height: 500px; /* fits inside 600px panel */
+  padding-right: 4px;
 }
-.title{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 25px;
+
+/* Event rows now wrap text */
+.event-row {
+  display: grid;
+  grid-template-columns: 8px 1fr auto;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 8px 4px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.15s ease;
+  word-break: break-word; /* allow long words to wrap */
+  white-space: normal;
 }
-/* social */
-.list_category{
-    border-style: solid;
-    border-color: rgba(61, 61, 61, 0.549);
-    border-width: 2px;
-    border-radius: 5px;
-    width: 150px;
-    height:600px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.event-row:hover {
+  background: #eef3ff;
 }
-.list_category mat-list-item:hover{
-    background-color: #bed0f4;
-    border-radius: 5px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+
+/* Colored dots still indicate event parity */
+.event-row-left .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  margin-top: 6px;
 }
+.event-row.even-id .dot { color: #6e9aec; }
+.event-row.odd-id .dot { color: #f6e995; }
+
+/* Main content expands vertically for multi-line titles */
+.event-row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  white-space: normal; /* allow wrapping */
+}
+
+.event-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  overflow: visible;
+  white-space: normal; /* wrap full title */
+  text-overflow: clip;
+}
+
+.event-meta {
+  font-size: 0.85rem;
+  color: #444;
+  line-height: 1.1;
+}
+
+/* Right-hand relative time stays top-aligned */
+.event-row-right {
+  font-size: 0.8rem;
+  color: #666;
+  white-space: nowrap;
+  align-self: flex-start;
+}
+
+/* Date separator tweaks */
+.date-sep {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #555;
+  margin: 10px 4px 4px;
+}
+
+/* Optional small helper classes */
+.muted { color: #666; }
+.small { font-size: 0.85rem; }
+
+
+
+.refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  line-height: 28px;
+  border-radius: 8px;
+  padding: 0 12px;
+}
+.refresh-btn .mat-progress-spinner {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+

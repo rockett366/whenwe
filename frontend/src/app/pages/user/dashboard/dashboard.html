@@ -1,40 +1,134 @@
+<!-- Header (full width) -->
+<div class="dashboard-header">
+  <h2>Welcome, {{ username || 'User' }} 👋</h2>
+  <button mat-stroked-button color="warn" (click)="logout()">Logout</button>
+</div>
 
-
-<div class="whole">
-    <div class="upcoming_events">
-    <div class="list_category">
-      <mat-list role="list">
-        <span matListItemTitle><h3>Events</h3></span>
-
-        <!-- Add new event button -->
-        <button mat-button>+</button>
-      </mat-list>
-    </div>
-  </div>
-    <div class="calendar">
-        <div class="title">
-            <h1>Welcome ``username``</h1>
-        </div>
-        <kendo-scheduler
-            [selectedDate]="selectedDate"
-            [kendoSchedulerBinding]="events"
-            [eventClass]="getEventClass"
-            style="height: 600px"
+<!-- Three-column content row -->
+<div class="content-row">
+  <!-- Left: Events -->
+  <div class="list_category">
+    <mat-list role="list" class="fill">
+      <div class="events-header">
+        <h3>Events</h3>
+        <span class="spacer"></span>
+        <button
+          mat-stroked-button
+          color="primary"
+          matTooltip="Refresh events"
+          (click)="refreshEvents()"
+          [disabled]="loading"
+          class="refresh-btn"
         >
-            <kendo-scheduler-day-view> </kendo-scheduler-day-view>
-            <kendo-scheduler-week-view> </kendo-scheduler-week-view>
-        </kendo-scheduler>
-    </div>
-    <div class="Social">
-        <div class="list_category">
-            <mat-list role="list">
-                    <span matListItemTitle> <h3>FRIENDS</h3></span>
+          <ng-container *ngIf="!loading">Refresh</ng-container>
+          <mat-progress-spinner
+            *ngIf="loading"
+            diameter="18"
+            mode="indeterminate"
+          ></mat-progress-spinner>
+        </button>
+        <button
+          mat-stroked-button
+          color="primary"
+          class="add-btn"
+          (click)="openGoogleCalendar()"
+          matTooltip="Open Google Calendar"
+        >
+          +
+        </button>
+      </div>
 
-                <mat-list-item role="listitem">``friend``</mat-list-item>
-                <mat-list-item role="listitem">``friend``</mat-list-item>
-                <mat-list-item role="listitem">``friend``</mat-list-item>
-                <button matButton="filled">+</button>
-            </mat-list>
-        </div>
-    </div>
+      <!-- Error -->
+      <div *ngIf="error && !loading" class="error small">
+        {{ error }}
+      </div>
+
+      <!-- Empty -->
+      <div *ngIf="!loading && !error && sidebarEvents.length === 0" class="muted small">
+        No events in this window.
+      </div>
+
+      <!-- Events list -->
+      <div class="events-scroll" *ngIf="!loading && sidebarEvents.length">
+        <ng-container *ngFor="let e of sidebarEvents; trackBy: trackByEventId">
+          <!-- Optional date separators -->
+          <div class="date-sep" *ngIf="showDateSeparator(e, previousEvent)">
+            {{ e.start | date : 'EEE, MMM d' }}
+          </div>
+
+          <mat-list-item
+            class="event-row"
+            (click)="jumpTo(e)"
+            [class.even-id]="getEventParity(e) === 'even-id'"
+            [class.odd-id]="getEventParity(e) === 'odd-id'"
+          >
+            <div class="event-row-left">
+              <div class="dot"></div>
+            </div>
+
+            <div class="event-row-main">
+              <div class="event-title" [matTooltip]="e.title">{{ e.title }}</div>
+              <div class="event-meta muted">
+                <ng-container *ngIf="!e.isAllDay; else alldayTpl">
+                  {{ e.start | date : 'shortTime' }} – {{ e.end | date : 'shortTime' }}
+                </ng-container>
+                <ng-template #alldayTpl>All day</ng-template>
+              </div>
+            </div>
+
+            <div class="event-row-right muted">
+              {{ timeUntil(e) }}
+            </div>
+          </mat-list-item>
+
+          <mat-divider></mat-divider>
+
+          <!-- keep a reference to previous item for the next iteration -->
+          <ng-container *ngIf="setPrevious(e)"></ng-container>
+        </ng-container>
+      </div>
+    </mat-list>
+  </div>
+
+  <!-- Center: Calendar -->
+  <div class="calendar">
+    <kendo-scheduler
+      [selectedDate]="selectedDate"
+      [kendoSchedulerBinding]="events"
+      [eventClass]="getEventClass"
+      style="height: 600px"
+    >
+      <kendo-scheduler-day-view></kendo-scheduler-day-view>
+      <kendo-scheduler-week-view></kendo-scheduler-week-view>
+    </kendo-scheduler>
+  </div>
+
+  <!-- Right: Friends -->
+  <div class="list_category">
+    <mat-list role="list" class="fill">
+      <span matListItemTitle><h3>FRIENDS</h3></span>
+
+      <mat-list-item *ngFor="let f of friends" class="friend-item">
+        <span class="friend-name">{{ f }}</span>
+        <button
+          mat-icon-button
+          color="warn"
+          (click)="confirmRemoveFriend(f)"
+          aria-label="Remove friend"
+        >
+          ❌
+        </button>
+      </mat-list-item>
+
+      <mat-form-field appearance="fill" class="friend-input">
+        <mat-label>Add Friend by Username</mat-label>
+        <input matInput [(ngModel)]="friendUsername" placeholder="e.g. johndoe" />
+      </mat-form-field>
+
+      <button mat-flat-button color="primary" (click)="addFriend()">Add Friend</button>
+
+      <p *ngIf="message" class="success">{{ message }}</p>
+      <p *ngIf="error" class="error">{{ error }}</p>
+    </mat-list>
+  </div>
 </div>
