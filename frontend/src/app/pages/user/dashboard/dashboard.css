@@ -143,3 +143,102 @@ button[mat-flat-button] {
     height: auto;
   }
 }
+
+/* ==== EVENT LIST FIXES ==== */
+
+/* Make the whole scroll area flexible so rows grow naturally */
+.events-scroll {
+  overflow-y: auto;
+  max-height: 500px; /* fits inside 600px panel */
+  padding-right: 4px;
+}
+
+/* Event rows now wrap text */
+.event-row {
+  display: grid;
+  grid-template-columns: 8px 1fr auto;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 8px 4px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.15s ease;
+  word-break: break-word; /* allow long words to wrap */
+  white-space: normal;
+}
+.event-row:hover {
+  background: #eef3ff;
+}
+
+/* Colored dots still indicate event parity */
+.event-row-left .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  margin-top: 6px;
+}
+.event-row.even-id .dot { color: #6e9aec; }
+.event-row.odd-id .dot { color: #f6e995; }
+
+/* Main content expands vertically for multi-line titles */
+.event-row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  white-space: normal; /* allow wrapping */
+}
+
+.event-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  overflow: visible;
+  white-space: normal; /* wrap full title */
+  text-overflow: clip;
+}
+
+.event-meta {
+  font-size: 0.85rem;
+  color: #444;
+  line-height: 1.1;
+}
+
+/* Right-hand relative time stays top-aligned */
+.event-row-right {
+  font-size: 0.8rem;
+  color: #666;
+  white-space: nowrap;
+  align-self: flex-start;
+}
+
+/* Date separator tweaks */
+.date-sep {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #555;
+  margin: 10px 4px 4px;
+}
+
+/* Optional small helper classes */
+.muted { color: #666; }
+.small { font-size: 0.85rem; }
+
+
+
+.refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  line-height: 28px;
+  border-radius: 8px;
+  padding: 0 12px;
+}
+.refresh-btn .mat-progress-spinner {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+

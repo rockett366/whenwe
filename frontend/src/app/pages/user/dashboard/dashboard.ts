@@ -9,6 +9,9 @@ import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CalendarService, GoogleEvent } from './calendar.service';
 import { ChangeDetectorRef } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,6 +23,9 @@ import { ChangeDetectorRef } from '@angular/core';
     MatInputModule,
     FormsModule,
     CommonModule,
+    MatProgressSpinnerModule,
+    MatDividerModule,
+    MatTooltipModule,
   ],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css'],
@@ -57,6 +63,10 @@ export class Dashboard implements OnInit {
   public loading = false;
   public username: string = '';
 
+  private startOfWindow!: Date;
+  private endOfWindow!: Date;
+  private _prevForSep: SchedulerEvent | null = null;
+
   constructor(
     private http: HttpClient,
     private cal: CalendarService,
@@ -69,7 +79,6 @@ export class Dashboard implements OnInit {
     if (storedUsername) {
       this.username = storedUsername;
     } else {
-      // fallback — decode token if username isn’t stored separately
       const token = localStorage.getItem('access_token');
       if (token) {
         try {
@@ -82,34 +91,17 @@ export class Dashboard implements OnInit {
     }
 
     this.loadFriends();
-    // Choose a window to display — e.g., the current week around selectedDate
-    const startOfWindow = new Date(this.selectedDate);
-    startOfWindow.setDate(startOfWindow.getDate() - 4);
-    startOfWindow.setHours(0, 0, 0, 0);
 
-    const endOfWindow = new Date(this.selectedDate);
-    endOfWindow.setDate(endOfWindow.getDate() + 4);
-    endOfWindow.setHours(23, 59, 59, 999);
+    // define the visible window around the selected date
+    this.startOfWindow = new Date(this.selectedDate);
+    this.startOfWindow.setDate(this.startOfWindow.getDate() - 4);
+    this.startOfWindow.setHours(0, 0, 0, 0);
 
-    try {
-      this.loading = true;
-      const googleEvents = await this.cal.listAllPrimaryEvents(
-        startOfWindow.toISOString(),
-        endOfWindow.toISOString()
-      );
-      const schedulerEvents = this.mapGoogleToScheduler(googleEvents);
+    this.endOfWindow = new Date(this.selectedDate);
+    this.endOfWindow.setDate(this.endOfWindow.getDate() + 4);
+    this.endOfWindow.setHours(23, 59, 59, 999);
 
-      // Replace your local events with Google events (or merge if you prefer)
-      this.events = schedulerEvents;
-    } catch (e: any) {
-      if (e?.message === 'unauthorized') {
-        this.error = 'Your Google session expired. Please sign in again.';
-      } else {
-        this.error = e?.message ?? 'Failed to load Google Calendar events.';
-      }
-    } finally {
-      this.loading = false;
-    }
+    await this.refreshEvents();
   }
 
   private mapGoogleToScheduler(gEvents: GoogleEvent[]): SchedulerEvent[] {
@@ -248,5 +240,106 @@ export class Dashboard implements OnInit {
         this.error = err.error?.detail ?? 'Failed to remove friend.';
       },
     });
+  }
+
+  async refreshEvents() {
+    await this.loadGoogleEvents(this.startOfWindow, this.endOfWindow);
+  }
+
+  private async loadGoogleEvents(start: Date, end: Date) {
+    try {
+      this.loading = true;
+      const googleEvents = await this.cal.listAllPrimaryEvents(
+        start.toISOString(),
+        end.toISOString()
+      );
+      const schedulerEvents = this.mapGoogleToScheduler(googleEvents);
+
+      // Replace (or merge if you prefer)
+      this.events = schedulerEvents;
+      this.error = '';
+      // reset date separator helper
+      this._prevForSep = null;
+    } catch (e: any) {
+      if (e?.message === 'unauthorized') {
+        this.error = 'Your Google session expired. Please sign in again.';
+      } else {
+        this.error = e?.message ?? 'Failed to load Google Calendar events.';
+      }
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  // Left panel uses a sorted, in-window view of events
+  get sidebarEvents(): SchedulerEvent[] {
+    const inWindow = (e: SchedulerEvent) =>
+      e.start >= this.startOfWindow && e.end <= this.endOfWindow;
+
+    return (this.events ?? [])
+      .filter(inWindow)
+      .sort((a, b) => a.start.getTime() - b.start.getTime());
+  }
+
+  jumpTo(e: SchedulerEvent) {
+    // Kendo binds to selectedDate — updating it moves the view
+    this.selectedDate = new Date(e.start);
+  }
+
+  // Parity class reused from your getEventClass logic (for list bullets)
+  getEventParity(e: SchedulerEvent): 'even-id' | 'odd-id' {
+    const id = Number((e as any).id);
+    return Number.isFinite(id) && id % 2 === 0 ? 'even-id' : 'odd-id';
+  }
+
+  // Human-ish relative time (e.g., "in 2h", "tomorrow")
+  timeUntil(e: SchedulerEvent): string {
+    const now = new Date().getTime();
+    const diff = e.start.getTime() - now;
+
+    const abs = Math.abs(diff);
+    const mins = Math.round(abs / 60000);
+    const hours = Math.round(abs / 3600000);
+    const days = Math.round(abs / 86400000);
+
+    const prefix = diff >= 0 ? 'in ' : '';
+    const suffix = diff < 0 ? 'ago' : '';
+
+    if (mins < 60) return `${prefix}${mins}m${suffix ? ' ' + suffix : ''}`;
+    if (hours < 24) return `${prefix}${hours}h${suffix ? ' ' + suffix : ''}`;
+    if (days === 1) return diff >= 0 ? 'tomorrow' : 'yesterday';
+    return `${prefix}${days}d${suffix ? ' ' + suffix : ''}`;
+  }
+
+  // Date separator logic
+  private sameDay(a: Date, b: Date): boolean {
+    return (
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate()
+    );
+  }
+  showDateSeparator(curr: SchedulerEvent, prev: SchedulerEvent | null): boolean {
+    if (!prev) return true;
+    return !this.sameDay(curr.start, prev.start);
+  }
+  // store previous in *ngFor without extra stateful pipes
+  setPrevious(e: SchedulerEvent): boolean {
+    (this as any).previousEvent = e; // expose for template
+    return true;
+  }
+  get previousEvent(): SchedulerEvent | null {
+    return (this as any)._prevForSep ?? null;
+  }
+  set previousEvent(e: SchedulerEvent | null) {
+    this._prevForSep = e;
+  }
+
+  // TrackBy for performance
+  trackByEventId = (_: number, e: SchedulerEvent) => (e as any).id ?? e.title;
+
+  // Open Google Calendar quickly
+  openGoogleCalendar() {
+    window.open('https://calendar.google.com/calendar/u/0/r', '_blank');
   }
 }
