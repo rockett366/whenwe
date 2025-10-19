@@ -134,3 +134,43 @@ def remove_friend(
     db.delete(friendship)
     db.commit()
     return {"message": f"{friend_username} removed."}
+
+#------ Google ------#
+#Store Token
+@router.post("/me/google-token")
+def save_google_token(
+    token_data: dict,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    token = token_data.get("access_token")
+    if not token:
+        raise HTTPException(status_code=400, detail="Missing access_token")
+
+    current_user.google_token = token
+    db.commit()
+    return {"message": "✅ Google token saved!"}
+
+
+# Fetch live events from Google Calendar
+@router.get("/me/google-events")
+def get_google_events(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    if not current_user.google_token:
+        raise HTTPException(status_code=400, detail="Google account not connected")
+
+    headers = {"Authorization": f"Bearer {current_user.google_token}"}
+    params = {"singleEvents": True, "orderBy": "startTime", "maxResults": 20}
+
+    response = requests.get(
+        "https://www.googleapis.com/calendar/v3/calendars/primary/events",
+        headers=headers,
+        params=params,
+    )
+
+    if response.status_code != 200:
+        raise HTTPException(status_code=response.status_code, detail="Failed to fetch events from Google")
+
+    return response.json().get("items", [])
