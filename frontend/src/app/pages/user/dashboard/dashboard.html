@@ -109,16 +109,28 @@
       <span matListItemTitle><h3>FRIENDS</h3></span>
 
       <mat-list-item *ngFor="let f of friends" class="friend-item">
-        <span class="friend-name">{{ f }}</span>
-        <button
-          mat-icon-button
-          color="warn"
-          (click)="confirmRemoveFriend(f)"
-          aria-label="Remove friend"
-        >
-          ❌
-        </button>
-      </mat-list-item>
+  <button
+    class="friend-name-btn"
+    mat-button
+    (click)="requestHangout(f)"
+    [disabled]="loading"
+    matTooltip="Request a hangout with {{ f }}"
+  >
+    {{ f }}
+  </button>
+
+  <span class="spacer"></span>
+
+  <button
+    mat-icon-button
+    color="warn"
+    (click)="confirmRemoveFriend(f)"
+    aria-label="Remove friend"
+  >
+    ❌
+  </button>
+</mat-list-item>
+
 
       <mat-form-field appearance="fill" class="friend-input">
         <mat-label>Add Friend by Username</mat-label>

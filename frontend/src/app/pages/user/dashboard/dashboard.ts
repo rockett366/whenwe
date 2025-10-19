@@ -242,6 +242,49 @@ export class Dashboard implements OnInit {
     });
   }
 
+  requestHangout(friend: string) {
+  if (!this.username) {
+    this.error = 'You must be logged in.';
+    return;
+  }
+
+  const ok = confirm(`Request a hangout with ${friend}?`);
+  if (!ok) return;
+
+  const token = localStorage.getItem('access_token');
+  if (!token) {
+    this.error = 'You must be logged in.';
+    return;
+  }
+
+  const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+
+  // Minimal payload — expand as you like (duration/title/time window are optional here)
+  const payload = {
+    user_name: this.username,
+    friend_user_name: friend,
+    duration: "60",                 // minutes (example)
+    desired_title: 'WhenWe Connect',
+    // earliest_start / latest_end can be ISO strings or omitted; backend handles defaults
+    // earliest_start: new Date().toISOString(),
+    // latest_end: new Date(Date.now() + 14*86400000).toISOString(),
+  };
+
+  this.loading = true;
+  this.http.put('http://localhost:8000/users/me/request', payload, { headers })
+    .subscribe({
+      next: (res: any) => {
+        this.message = `🎉 Requested a hangout with ${friend}.`;
+        this.error = '';
+      },
+      error: (err) => {
+        console.error('Request error:', err);
+        this.error = err?.error?.detail || err?.message || 'Failed to send request.';
+      }
+    }).add(() => this.loading = false);
+}
+
+
   async refreshEvents() {
     await this.loadGoogleEvents(this.startOfWindow, this.endOfWindow);
   }

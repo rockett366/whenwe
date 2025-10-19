@@ -111,6 +111,15 @@ button[mat-flat-button] {
   width: 100%;
 }
 
+/* dashboard.css */
+.friend-name-btn {
+  padding: 0 6px;
+  min-width: 0;
+  text-transform: none;
+}
+.friend-item .spacer { flex: 1; }
+
+
 /* Messages */
 .success,
 .error {
