@@ -1,3 +1,5 @@
+from dataclasses import Field
+import datetime
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 
@@ -89,3 +91,19 @@ class UserTokenUpdate(BaseModel):
 class UserPrefAppend(BaseModel):
     preference: Optional[str] = None
 
+class RequestMeetingBody(BaseModel):
+    user_name: str
+    desired_title: str = "WhenWe Connect"
+    # Either pass 'duration_minutes' or keep your legacy 'time' string.
+    duration: Optional[str] = None
+    earliest_start: Optional[str] = None
+    latest_end: Optional[str] = None
+
+class GoogleEventDTO(BaseModel):
+    # Mirrors your GoogleEvent schema (strings in ISO w/o TZ)
+    title: str
+    start: str
+    end: str
+    location: Optional[str] = None
+    all_day: bool = False
+    id: Optional[str] = None

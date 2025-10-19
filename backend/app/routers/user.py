@@ -1,3 +1,6 @@
+import datetime
+
+import requests
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from ..database import get_db
@@ -39,9 +42,78 @@ def verify_my_password(
         raise HTTPException(status_code=400, detail="Current password is incorrect")
     return {"ok": True}
 
+def get_friend_required(db: Session, friend_id: int) -> models.User:
+    friend = db.query(models.User).get(friend_id)
+    if not friend:
+        raise HTTPException(status_code=404, detail="Friend not found")
+    return friend
+def get_user_required(db: Session, user_id: int) -> models.User:
+    user = db.query(models.User).get(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+def fetch_events_for_user(token):
+    base = 'https://www.googleapis.com/calendar/v3'
+    params = URLSearchParams({
+        timeMin: opts.timeMin,
+        timeMax: opts.timeMax,
+        singleEvents: 'true',
+        orderBy: 'startTime',
+        maxResults: '2500',
+    })
+
 # PUT /users/me/request
 @router.put("/me/request")
-def change_my_password():
+def change_my_password(    
+    payload: schemas.RequestMeetingBody,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(...),
+    ):
+    me = get_user_required(db, current_user.id)
+    friend = get_friend_required(db, payload.user_name)
+    try:
+        family_rank_me = int(getattr(me, "family_rank", 3))
+        friend_rank_me = int(getattr(me, "friend_rank", 3))
+        school_rank_me = int(getattr(me, "school_rank", 5))
+        work_rank_me = int(getattr(me, "work_rank", 4))
+        self_rank_me = int(getattr(me, "self_rank", 2))
+        preferences_me = getattr(me, "preferences", "") or ""
+
+        family_rank_friend = int(getattr(friend, "family_rank", 3))
+        friend_rank_friend = int(getattr(friend, "friend_rank", 3))
+        school_rank_friend = int(getattr(friend, "school_rank", 5))
+        work_rank_friend = int(getattr(friend, "work_rank", 4))
+        self_rank_friend = int(getattr(friend, "self_rank", 2))
+        preferences_friend = getattr(friend, "preferences", "") or ""
+    except ValueError:
+        raise HTTPException(status_code=422, detail="Rank fields must be integers")
+    
+    earliest = payload.earliest_start or datetime.utcnow()
+    latest = payload.latest_end or (earliest + datetime.timedelta(days=14))
+    combined_preferences = "; ".join(p for p in [preferences_me, preferences_friend] if p.strip())
+
+    my_rows = fetch_events_for_user(db, me.id, earliest, latest)
+    friend_rows = fetch_events_for_user(db, friend.id, earliest, latest)
+    result = suggest_meeting_time(
+            user_name=getattr(me, "display_name", None) or me.name,
+            friend_name=getattr(friend, "display_name", None) or friend.name,
+            preferences=combined_preferences,
+            _events_to_compact_json=_events_to_compact_json,
+            family_rank_me=family_rank_me,
+            family_rank_friend=family_rank_friend,
+            friend_rank_me=friend_rank_me,
+            friend_rank_friend=friend_rank_friend,
+            school_rank_me=school_rank_me,
+            school_rank_friend=school_rank_friend,
+            work_rank_me=work_rank_me,
+            work_rank_friend=work_rank_friend,
+            self_rank_me=self_rank_me,
+            self_rank_friend=self_rank_friend,
+            time=str(payload.duration_minutes) if hasattr(payload, "duration_minutes") else "60",
+            desired_title=getattr(payload, "desired_title", "WhenWe Connect"),
+            earliest_start=earliest,
+            latest_end=latest,
+        )
     return suggest_meeting_time()
 
 
