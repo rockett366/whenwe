@@ -42,6 +42,7 @@ def verify_my_password(
         raise HTTPException(status_code=400, detail="Current password is incorrect")
     return {"ok": True}
 
+# ------- request ----------
 def get_friend_required(db: Session, friend_id: int) -> models.User:
     friend = db.query(models.User).get(friend_id)
     if not friend:
@@ -52,53 +53,125 @@ def get_user_required(db: Session, user_id: int) -> models.User:
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
-def fetch_events_for_user(token):
-    base = 'https://www.googleapis.com/calendar/v3'
-    params = URLSearchParams({
-        timeMin: opts.timeMin,
-        timeMax: opts.timeMax,
-        singleEvents: 'true',
-        orderBy: 'startTime',
-        maxResults: '2500',
-    })
+
+def fetch_google_events(google_token: str, max_results: int = 20):
+    headers = {"Authorization": f"Bearer {google_token}"}
+    params = {
+        "singleEvents": True,
+        "orderBy": "startTime",
+        "maxResults": max_results,
+    }
+
+    response = requests.get(
+        "https://www.googleapis.com/calendar/v3/calendars/primary/events",
+        headers=headers,
+        params=params,
+    )
+
+    if response.status_code != 200:
+        raise Exception(f"Google API error: {response.status_code} - {response.text}")
+
+    return response.json().get("items", [])
 
 # PUT /users/me/request
 @router.put("/me/request")
 def change_my_password(    
     payload: schemas.RequestMeetingBody,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(...),
     ):
-    me = get_user_required(db, current_user.id)
-    friend = get_friend_required(db, payload.user_name)
-    try:
-        family_rank_me = int(getattr(me, "family_rank", 3))
-        friend_rank_me = int(getattr(me, "friend_rank", 3))
-        school_rank_me = int(getattr(me, "school_rank", 5))
-        work_rank_me = int(getattr(me, "work_rank", 4))
-        self_rank_me = int(getattr(me, "self_rank", 2))
-        preferences_me = getattr(me, "preferences", "") or ""
+    me = payload.user_name
+    friend =  payload.user_name
 
-        family_rank_friend = int(getattr(friend, "family_rank", 3))
-        friend_rank_friend = int(getattr(friend, "friend_rank", 3))
-        school_rank_friend = int(getattr(friend, "school_rank", 5))
-        work_rank_friend = int(getattr(friend, "work_rank", 4))
-        self_rank_friend = int(getattr(friend, "self_rank", 2))
-        preferences_friend = getattr(friend, "preferences", "") or ""
+    me_token = (
+        db.query(models.User.google_token)
+        .filter(models.User.username == payload.user_name)
+        .scalar()
+    )
+    friend_token= (
+        db.query(models.User.google_token)
+        .filter(models.User.username == payload.friend_user_name)
+        .scalar()
+    )
+    
+    try:
+        family_rank_me = (
+            db.query(models.User.family_rating)
+            .filter(models.User.username == payload.user_name)
+            .scalar()
+        )
+        friend_rank_me = (
+            db.query(models.User.friends_rating)
+            .filter(models.User.username == payload.user_name)
+            .scalar()
+        )
+        school_rank_me = (
+            db.query(models.User.school_rating)
+            .filter(models.User.username == payload.user_name)
+            .scalar()
+        )
+        work_rank_me = (
+            db.query(models.User.work_rating)
+            .filter(models.User.username == payload.user_name)
+            .scalar()
+        )
+        self_rank_me = (
+            db.query(models.User.self_rating)
+            .filter(models.User.username == payload.user_name)
+            .scalar()
+        )
+        preferences_me = (
+            db.query(models.User.preferences)
+            .filter(models.User.username == payload.user_name)
+            .scalar()
+        )
+
+        family_rank_friend = (
+            db.query(models.User.family_rating)
+            .filter(models.User.username == payload.friend_user_name)
+            .scalar()
+        )
+        friend_rank_friend = (
+            db.query(models.User.friends_rating)
+            .filter(models.User.username == payload.friend_user_name)
+            .scalar()
+        )
+        school_rank_friend = (
+            db.query(models.User.school_rating)
+            .filter(models.User.username == payload.friend_user_name)
+            .scalar()
+        )
+        work_rank_friend = (
+            db.query(models.User.work_rating)
+            .filter(models.User.username == payload.friend_user_name)
+            .scalar()
+        )
+        self_rank_friend= (
+            db.query(models.User.self_rating)
+            .filter(models.User.username == payload.friend_user_name)
+            .scalar()
+        )
+        preferences_friend = (
+            db.query(models.User.preferences)
+            .filter(models.User.username == payload.friend_user_name)
+            .scalar()
+        )
     except ValueError:
         raise HTTPException(status_code=422, detail="Rank fields must be integers")
     
     earliest = payload.earliest_start or datetime.utcnow()
     latest = payload.latest_end or (earliest + datetime.timedelta(days=14))
-    combined_preferences = "; ".join(p for p in [preferences_me, preferences_friend] if p.strip())
+    combined_preferences = (preferences_me or "") + "; " + (preferences_friend or "")
 
-    my_rows = fetch_events_for_user(db, me.id, earliest, latest)
-    friend_rows = fetch_events_for_user(db, friend.id, earliest, latest)
+    my_rows = fetch_google_events(me_token)
+    friend_rows = fetch_google_events(friend_token)
+
+    join = my_rows + friend_rows
+
     result = suggest_meeting_time(
             user_name=getattr(me, "display_name", None) or me.name,
             friend_name=getattr(friend, "display_name", None) or friend.name,
             preferences=combined_preferences,
-            _events_to_compact_json=_events_to_compact_json,
+            _events_to_compact_json=join,
             family_rank_me=family_rank_me,
             family_rank_friend=family_rank_friend,
             friend_rank_me=friend_rank_me,
