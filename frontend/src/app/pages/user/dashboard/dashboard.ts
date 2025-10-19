@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CalendarService, GoogleEvent } from './calendar.service';
 import { ChangeDetectorRef } from '@angular/core';
@@ -54,14 +55,32 @@ export class Dashboard implements OnInit {
   public message: string = '';
   public error: string = '';
   public loading = false;
+  public username: string = '';
 
   constructor(
     private http: HttpClient,
     private cal: CalendarService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   async ngOnInit() {
+    const storedUsername = localStorage.getItem('username');
+    if (storedUsername) {
+      this.username = storedUsername;
+    } else {
+      // fallback — decode token if username isn’t stored separately
+      const token = localStorage.getItem('access_token');
+      if (token) {
+        try {
+          const decoded = JSON.parse(atob(token.split('.')[1]));
+          this.username = decoded?.sub || '';
+        } catch {
+          this.username = '';
+        }
+      }
+    }
+
     this.loadFriends();
     // Choose a window to display — e.g., the current week around selectedDate
     const startOfWindow = new Date(this.selectedDate);
@@ -130,6 +149,14 @@ export class Dashboard implements OnInit {
       .filter((e) => e.start > now) // Future events only
       .sort((a, b) => a.start.getTime() - b.start.getTime()) // Sort by soonest
       .slice(0, 5); // Max 5 events
+  }
+
+  logout() {
+    if (confirm('Are you sure you want to log out?')) {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('username');
+      this.router.navigate(['/login']);
+    }
   }
   // Add friend
   addFriend() {
