@@ -1,40 +1,62 @@
-
-
 <div class="whole">
-    <div class="upcoming_events">
+  <div class="upcoming_events">
     <div class="list_category">
       <mat-list role="list">
         <span matListItemTitle><h3>Events</h3></span>
-
         <!-- Add new event button -->
         <button mat-button>+</button>
       </mat-list>
     </div>
   </div>
-    <div class="calendar">
-        <div class="title">
-            <h1>Welcome ``username``</h1>
-        </div>
-        <kendo-scheduler
-            [selectedDate]="selectedDate"
-            [kendoSchedulerBinding]="events"
-            [eventClass]="getEventClass"
-            style="height: 600px"
-        >
-            <kendo-scheduler-day-view> </kendo-scheduler-day-view>
-            <kendo-scheduler-week-view> </kendo-scheduler-week-view>
-        </kendo-scheduler>
-    </div>
-    <div class="Social">
-        <div class="list_category">
-            <mat-list role="list">
-                    <span matListItemTitle> <h3>FRIENDS</h3></span>
 
-                <mat-list-item role="listitem">``friend``</mat-list-item>
-                <mat-list-item role="listitem">``friend``</mat-list-item>
-                <mat-list-item role="listitem">``friend``</mat-list-item>
-                <button matButton="filled">+</button>
-            </mat-list>
-        </div>
+  <div class="calendar">
+    <div class="title">
+      <h1>Welcome</h1>
     </div>
+
+    <kendo-scheduler
+      [selectedDate]="selectedDate"
+      [kendoSchedulerBinding]="events"
+      [eventClass]="getEventClass"
+      style="height: 600px"
+    >
+      <kendo-scheduler-day-view></kendo-scheduler-day-view>
+      <kendo-scheduler-week-view></kendo-scheduler-week-view>
+    </kendo-scheduler>
+  </div>
+
+  <div class="Social">
+    <div class="list_category">
+      <mat-list role="list">
+        <span matListItemTitle><h3>FRIENDS</h3></span>
+
+        <!-- Friend list will render dynamically -->
+        <mat-list-item *ngFor="let f of friends" class="friend-item">
+          <span>{{ f }}</span>
+          <button
+            mat-icon-button
+            color="warn"
+            (click)="confirmRemoveFriend(f)"
+            class="remove-btn"
+            aria-label="Remove friend"
+          >
+            ❌
+          </button>
+        </mat-list-item>
+
+        <!-- Add Friend Input -->
+        <mat-form-field appearance="fill" class="friend-input">
+          <mat-label>Add Friend by Username</mat-label>
+          <input matInput [(ngModel)]="friendUsername" placeholder="e.g. johndoe" />
+        </mat-form-field>
+
+        <!-- Add Friend Button -->
+        <button mat-flat-button color="primary" (click)="addFriend()">Add Friend</button>
+
+        <!-- Feedback Messages -->
+        <p *ngIf="message" class="success">{{ message }}</p>
+        <p *ngIf="error" class="error">{{ error }}</p>
+      </mat-list>
+    </div>
+  </div>
 </div>

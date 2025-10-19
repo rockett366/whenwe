@@ -81,3 +81,56 @@ def update_ratings(
     db.commit()
     db.refresh(current)
     return {"message": "Ratings updated", "user": current}
+
+#------- Friend --------#
+# Add friend
+@router.post("/me/add_friend/{friend_username}")
+def add_friend(
+    friend_username: str,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    # Check that the friend exists
+    friend = db.query(models.User).filter(models.User.username == friend_username).first()
+    if not friend:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Check if already added
+    exists = db.query(models.Friendship).filter_by(
+        user_id=current_user.id, friend_username=friend_username
+    ).first()
+    if exists:
+        raise HTTPException(status_code=400, detail="Already friends")
+
+    # Add friendship
+    new_friend = models.Friendship(user_id=current_user.id, friend_username=friend_username)
+    db.add(new_friend)
+    db.commit()
+    db.refresh(new_friend)
+
+    return {"message": f"{friend_username} added as a friend!"}
+
+# Fetch Friends
+@router.get("/me/friends")
+def get_friends(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    friends = db.query(models.Friendship).filter(models.Friendship.user_id == current_user.id).all()
+    return [f.friend_username for f in friends]
+
+#Delete Friend
+@router.delete("/me/friends/{friend_username}")
+def remove_friend(
+    friend_username: str,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    friendship = db.query(models.Friendship).filter_by(
+        user_id=current_user.id, friend_username=friend_username
+    ).first()
+    if not friendship:
+        raise HTTPException(status_code=404, detail="Friend not found")
+    db.delete(friendship)
+    db.commit()
+    return {"message": f"{friend_username} removed."}
